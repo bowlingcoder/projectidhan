@@ -4,8 +4,6 @@ public class Character {
     String name;
     int health;
     int stamina;
-    Equipment weapon;
-    Equipment shield;
 
     int healthMax;
     int staminaMax;
@@ -66,28 +64,60 @@ public class Character {
         System.out.println("Name: "+ name);
         System.out.println("Health: "+ health+"/"+healthMax);
         System.out.println("Stamina: "+ stamina+"/"+staminaMax);
-        if(weapon != null){
-            System.out.println("Weapon: " + weapon.name);
-        }
-        else{
-            System.out.println("Weapon: none");
-        }
-        if(shield != null){
-            System.out.println("Shield: " + shield.name);
-        }
-        else{
-            System.out.println("Shield: none");
+        for (int x=0;x<Setup.equipTypes.length;x++){
+            if (isEquipped(x)){
+                System.out.println(Setup.equipTypes[x] +": "+ getEquipped(x).name);
+            }
+            else{
+                System.out.println(Setup.equipTypes[x] + ": none");
+            }
         }
     }
 
-    public void equipWeapon(Equipment weapon){ this.weapon = weapon; }
-    public void equipShield(Equipment shield){ this.shield = shield; }
+    public void equip(Equipment toEquip){
+        if (isEquipped(toEquip.id)){
+            unequip(getEquipped(toEquip.id));
+        }
+        equipment.add(toEquip);
+        calcStats();
+    }
+    public void unequip(Equipment toEquip){
+        equipment.remove(toEquip);
+        calcStats();
+    }
+
+    public Boolean isEquipped(int id){
+        for (Equipment next:equipment){
+            if (next.id==id){
+                return true;
+            }
+        }
+        return false;
+    }
+    public Equipment getEquipped(int id){
+        for (Equipment next:equipment){
+            if (next.id==id){
+                return next;
+            }
+        }
+        return null;
+    }
 
     public void zeroStats(){
         healthMax=0;
         attack=0;
         defense=0;
 
+    }
+    public void fullHeal(){
+        health=healthMax;
+    }
+    public void fullStamina(){
+        stamina=staminaMax;
+    }
+    public void fullRestore(){
+        fullHeal();
+        fullStamina();
     }
     public void calcStats(){
         //zeroStats();
@@ -105,8 +135,21 @@ public class Character {
         int speedBonus=0;
         int moveBonus=0;
 
-        if(weapon != null){ attackBonus+= weapon.bonus; }
-        if(shield != null){ defenseBonus+= shield.bonus; }
+        for (Equipment next:equipment){
+            healthMaxBonus+=next.healthMaxBonus;
+            staminaMaxBonus+=next.staminaMaxBonus;
+            attackBonus+=next.attackBonus;
+            defenseBonus+=next.defenseBonus;
+            speedBonus+=next.speedBonus;
+            moveBonus+=next.moveBonus;
+
+            healthMaxMultiplier+=next.healthMaxMultiplier;
+            staminaMaxMultiplier+=next.staminaMaxMultiplier;
+            attackMultiplier+=next.attackMultiplier;
+            defenseMultiplier+=next.defenseMultiplier;
+            speedMultiplier+=next.speedMultiplier;
+            moveMultiplier+=next.moveMultiplier;
+        }
 
         healthMax=(int)Math.floor((healthMaxBase+healthMaxBonus)*healthMaxMultiplier);
         staminaMax=(int)Math.floor((staminaMaxBase+staminaMaxBonus)*staminaMaxMultiplier);
@@ -115,8 +158,6 @@ public class Character {
         speed=(int)Math.floor((speedBase+speedBonus)*speedMultiplier);
         move=(int)Math.floor((moveBase+moveBonus)*moveMultiplier);
 
-        health = healthMax;
-        stamina = staminaMax;
 
         if (health>healthMax){ health=healthMax; }
         if (stamina>staminaMax){ stamina=staminaMax; }
