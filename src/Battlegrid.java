@@ -28,7 +28,7 @@ public class Battlegrid {
                     toReturn+="x";
                 }
                 else if (tiles[x][y].currentCharacter!=null){
-                    toReturn+=tiles[x][y].currentCharacter.name.substring(0,1);
+                    toReturn+=tiles[x][y].currentCharacter.getName().substring(0,1);
                 }
                 else {
                     toReturn+="o";

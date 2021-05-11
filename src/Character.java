@@ -1,23 +1,25 @@
 import java.util.ArrayList;
 
 public class Character {
-    String name;
-    int health;
-    int stamina;
+    private String name;
+    private int health;
+    private int stamina;
 
-    int healthMax;
-    int staminaMax;
-    int attack;
-    int defense;
-    int speed;
-    int move;
 
-    int healthMaxBase;
-    int staminaMaxBase;
-    int attackBase;
-    int defenseBase;
-    int speedBase;
-    int moveBase;
+    private int healthMax;
+    private int staminaMax;
+    private int attack;
+    private int defense;
+    private int speed;
+    private int move;
+
+    private int healthMaxBase;
+    private int staminaMaxBase;
+    private int attackBase;
+    private int defenseBase;
+
+    private int speedBase;
+    private int moveBase;
 
     ArrayList<Equipment> equipment=new ArrayList<>();
     ArrayList<Item> item=new ArrayList<>();
@@ -29,7 +31,8 @@ public class Character {
         this.defenseBase=1;
         this.speedBase=1;
         this.moveBase=1;
-
+        calcStats();
+        fullRestore();
     }
     public Character(String name){
         this.name = name;
@@ -38,6 +41,8 @@ public class Character {
         this.defenseBase=1;
         this.speedBase=1;
         this.moveBase=1;
+        calcStats();
+        fullRestore();
     }
 
     public void displayCharacterBaseStats(){
@@ -66,7 +71,7 @@ public class Character {
         System.out.println("Stamina: "+ stamina+"/"+staminaMax);
         for (int x=0;x<Setup.equipTypes.length;x++){
             if (isEquipped(x)){
-                System.out.println(Setup.equipTypes[x] +": "+ getEquipped(x).name);
+                System.out.println(Setup.equipTypes[x] +": "+ getEquipped(x).getName());
             }
             else{
                 System.out.println(Setup.equipTypes[x] + ": none");
@@ -75,8 +80,8 @@ public class Character {
     }
 
     public void equip(Equipment toEquip){
-        if (isEquipped(toEquip.id)){
-            unequip(getEquipped(toEquip.id));
+        if (isEquipped(toEquip.getId())){
+            unequip(getEquipped(toEquip.getId()));
         }
         equipment.add(toEquip);
         calcStats();
@@ -88,7 +93,7 @@ public class Character {
 
     public Boolean isEquipped(int id){
         for (Equipment next:equipment){
-            if (next.id==id){
+            if (next.getId()==id){
                 return true;
             }
         }
@@ -96,7 +101,7 @@ public class Character {
     }
     public Equipment getEquipped(int id){
         for (Equipment next:equipment){
-            if (next.id==id){
+            if (next.getId()==id){
                 return next;
             }
         }
@@ -136,19 +141,19 @@ public class Character {
         int moveBonus=0;
 
         for (Equipment next:equipment){
-            healthMaxBonus+=next.healthMaxBonus;
-            staminaMaxBonus+=next.staminaMaxBonus;
-            attackBonus+=next.attackBonus;
-            defenseBonus+=next.defenseBonus;
-            speedBonus+=next.speedBonus;
-            moveBonus+=next.moveBonus;
+            healthMaxBonus+= next.getHealthMaxBonus();
+            staminaMaxBonus+= next.getStaminaMaxBonus();
+            attackBonus+= next.getAttackBonus();
+            defenseBonus+= next.getDefenseBonus();
+            speedBonus+= next.getSpeedBonus();
+            moveBonus+= next.getMoveBonus();
 
-            healthMaxMultiplier+=next.healthMaxMultiplier;
-            staminaMaxMultiplier+=next.staminaMaxMultiplier;
-            attackMultiplier+=next.attackMultiplier;
-            defenseMultiplier+=next.defenseMultiplier;
-            speedMultiplier+=next.speedMultiplier;
-            moveMultiplier+=next.moveMultiplier;
+            healthMaxMultiplier+= next.getHealthMaxMultiplier();
+            staminaMaxMultiplier+= next.getStaminaMaxMultiplier();
+            attackMultiplier+= next.getAttackMultiplier();
+            defenseMultiplier+= next.getDefenseMultiplier();
+            speedMultiplier+= next.getSpeedMultiplier();
+            moveMultiplier+= next.getMoveMultiplier();
         }
 
         healthMax=(int)Math.floor((healthMaxBase+healthMaxBonus)*healthMaxMultiplier);
@@ -162,4 +167,56 @@ public class Character {
         if (health>healthMax){ health=healthMax; }
         if (stamina>staminaMax){ stamina=staminaMax; }
     }
+
+    //TODO: Decide if all of these Getters/Setters are necessary
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public int getHealth() { return health; }
+    public void setHealth(int health) { this.health = health; }
+
+    public int getStamina() { return stamina; }
+    public void setStamina(int stamina) { this.stamina = stamina; }
+
+    public int getHealthMax() { return healthMax; }
+    public void setHealthMax(int healthMax) { this.healthMax = healthMax; }
+
+    public int getStaminaMax() { return staminaMax; }
+    public void setStaminaMax(int staminaMax) { this.staminaMax = staminaMax; }
+
+    public int getAttack() { return attack; }
+    public void setAttack(int attack) { this.attack = attack; }
+
+    public int getDefense() { return defense; }
+    public void setDefense(int defense) { this.defense = defense; }
+
+    public int getSpeed() { return speed; }
+    public void setSpeed(int speed) { this.speed = speed; }
+
+    public int getMove() { return move; }
+    public void setMove(int move) { this.move = move; }
+
+    public int getHealthMaxBase() { return healthMaxBase; }
+    public void setHealthMaxBase(int healthMaxBase) { this.healthMaxBase = healthMaxBase; }
+
+    public int getStaminaMaxBase() { return staminaMaxBase; }
+    public void setStaminaMaxBase(int staminaMaxBase) { this.staminaMaxBase = staminaMaxBase; }
+
+    public int getAttackBase() { return attackBase; }
+    public void setAttackBase(int attackBase) { this.attackBase = attackBase; }
+
+    public int getDefenseBase() { return defenseBase; }
+    public void setDefenseBase(int defenseBase) { this.defenseBase = defenseBase; }
+
+    public int getSpeedBase() { return speedBase; }
+    public void setSpeedBase(int speedBase) { this.speedBase = speedBase; }
+
+    public int getMoveBase() { return moveBase; }
+    public void setMoveBase(int moveBase) { this.moveBase = moveBase; }
+
+    public ArrayList<Equipment> getEquipment() { return equipment; }
+    public void setEquipment(ArrayList<Equipment> equipment) { this.equipment = equipment; }
+
+    public ArrayList<Item> getItem() { return item; }
+    public void setItem(ArrayList<Item> item) { this.item = item; }
 }
