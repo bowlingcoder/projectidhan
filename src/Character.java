@@ -27,7 +27,7 @@ public class Character {
     public Character(){
         this.name="Generic";
         this.healthMaxBase=5;
-        this.attackBase=1;
+        this.attackBase=2;
         this.defenseBase=1;
         this.speedBase=1;
         this.moveBase=1;
