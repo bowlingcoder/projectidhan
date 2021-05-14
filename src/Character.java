@@ -4,7 +4,10 @@ public class Character {
     private String name;
     private int health;
     private int stamina;
-
+    private int moveLeft;
+    private boolean npc=true;
+    private int team=0;
+    private Tile tile;
 
     private int healthMax;
     private int staminaMax;
@@ -12,6 +15,7 @@ public class Character {
     private int defense;
     private int speed;
     private int move;
+    private int range=1;
 
     private int healthMaxBase;
     private int staminaMaxBase;
@@ -22,7 +26,8 @@ public class Character {
     private int moveBase;
 
     ArrayList<Equipment> equipment=new ArrayList<>();
-    ArrayList<Item> item=new ArrayList<>();
+    ArrayList<Buff> buffs=new ArrayList<>();
+    ArrayList<Item> items =new ArrayList<>();
 
     public Character(){
         this.name="Generic";
@@ -45,40 +50,75 @@ public class Character {
         fullRestore();
     }
 
-    public void displayCharacterBaseStats(){
-        System.out.println("Character Base Stats");
-        System.out.println("Name: "+ name);
-        System.out.println("Max HP: "+healthMaxBase);
-        System.out.println("Base Attack: "+attackBase);
-        System.out.println("Base Defense: "+defenseBase);
-        System.out.println("Base Speed: "+speedBase);
-        System.out.println("Base Move: "+moveBase);
+    public String displayCharacterBaseStats(){
+        String toReturn="";
+        toReturn+=("Character Base Stats\n");
+        toReturn+=("Name: "+ name+"\n");
+        toReturn+=("Max HP: "+healthMaxBase+"\n");
+        toReturn+=("Base Attack: "+attackBase+"\n");
+        toReturn+=("Base Defense: "+defenseBase+"\n");
+        toReturn+=("Base Speed: "+speedBase+"\n");
+        toReturn+=("Base Move: "+moveBase+"\n");
+        return toReturn;
     }
-    public void displayCharacterStats(){
-        System.out.println("Character Stats");
+    public String displayCharacterStats(){
+        String toReturn="";
         calcStats();
-        System.out.println("Name: "+ name);
-        System.out.println("Max HP: "+healthMax);
-        System.out.println("Attack: "+attack);
-        System.out.println("Defense: "+defense);
-        System.out.println("Speed: "+speed);
-        System.out.println("Move: "+move);
+        toReturn+=("Character Stats\n");
+        toReturn+=("Name: "+ name+"\n");
+        toReturn+=("Max HP: "+healthMax+"\n");
+        toReturn+=("Attack: "+attack+"\n");
+        toReturn+=("Defense: "+defense+"\n");
+        toReturn+=("Speed: "+speed+"\n");
+        toReturn+=("Move: "+move+"\n");
+        return toReturn;
     }
-    public void displayCharacter(){
-        System.out.println("Character Info");
-        System.out.println("Name: "+ name);
-        System.out.println("Health: "+ health+"/"+healthMax);
-        System.out.println("Stamina: "+ stamina+"/"+staminaMax);
+    public String displayCharacter(){
+        String toReturn="";
+        toReturn+=("Character Info\n");
+        toReturn+=("Name: "+ name+"\n");
+        toReturn+=("Health: "+ health+"/"+healthMax+"\n");
+        toReturn+=("Stamina: "+ stamina+"/"+staminaMax+"\n");
         for (int x=0;x<Setup.equipTypes.length;x++){
             if (isEquipped(x)){
-                System.out.println(Setup.equipTypes[x] +": "+ getEquipped(x).getName());
+                toReturn+=(Setup.equipTypes[x] +": "+ getEquipped(x).getName()+"\n");
             }
             else{
-                System.out.println(Setup.equipTypes[x] + ": none");
+                toReturn+=(Setup.equipTypes[x] + ": none\n");
             }
         }
+        return toReturn;
     }
+    public String turnStart(){
+        String toReturn="";
+        moveLeft=move;
+        for (int x=0;x<buffs.size();x++){
+            buffs.get(x).setDuration(buffs.get(x).getDuration()-1);
+            if (buffs.get(x).getDuration()<0){
+                buffs.remove(x);
+                x--;
+            }
+        }
+        return toReturn;
+    }
+    public String planMove(Tile target){
+        String toReturn="";
+        if (getTargetsInRange().size()==0)
+        {
 
+        }
+        return toReturn;
+    }
+    public ArrayList<Character> getTargetsInRange(){
+        ArrayList<Character> targets= Setup.playerCombat.grid.getCharactersInRange(tile.x,tile.y,range);
+        for (int x=0;x<targets.size();x++){
+            if (targets.get(x).team==team){
+                targets.remove(x);
+                x--;
+            }
+        }
+        return targets;
+    }
     public void equip(Equipment toEquip){
         if (isEquipped(toEquip.getId())){
             unequip(getEquipped(toEquip.getId()));
@@ -155,6 +195,21 @@ public class Character {
             speedMultiplier+= next.getSpeedMultiplier();
             moveMultiplier+= next.getMoveMultiplier();
         }
+        for (Buff next:buffs){
+            healthMaxBonus+= next.getHealthMaxBonus();
+            staminaMaxBonus+= next.getStaminaMaxBonus();
+            attackBonus+= next.getAttackBonus();
+            defenseBonus+= next.getDefenseBonus();
+            speedBonus+= next.getSpeedBonus();
+            moveBonus+= next.getMoveBonus();
+
+            healthMaxMultiplier+= next.getHealthMaxMultiplier();
+            staminaMaxMultiplier+= next.getStaminaMaxMultiplier();
+            attackMultiplier+= next.getAttackMultiplier();
+            defenseMultiplier+= next.getDefenseMultiplier();
+            speedMultiplier+= next.getSpeedMultiplier();
+            moveMultiplier+= next.getMoveMultiplier();
+        }
 
         healthMax=(int)Math.floor((healthMaxBase+healthMaxBonus)*healthMaxMultiplier);
         staminaMax=(int)Math.floor((staminaMaxBase+staminaMaxBonus)*staminaMaxMultiplier);
@@ -166,6 +221,33 @@ public class Character {
 
         if (health>healthMax){ health=healthMax; }
         if (stamina>staminaMax){ stamina=staminaMax; }
+    }
+    public String move(int tiles){
+        String toReturn="";
+        return toReturn;
+    }
+    public String attack(Character to){
+        String toReturn="";
+        int baseDamage=attack;
+        int damage=to.getAttacked(baseDamage);
+        toReturn+=name+" attacked "+to.name+"\n";
+        toReturn+=to.name+" took "+damage+" damage.\n";
+        return toReturn;
+    }
+    public int getAttacked(int baseDamage){
+        int damage=baseDamage-defense;
+        takeDamage(damage);
+        return damage;
+    }
+    public String takeDamage(int damage){
+        String toReturn="";
+        toReturn+=loseHp(damage);
+        return toReturn;
+    }
+    public String loseHp(int amount){
+        String toReturn="";
+        health-=amount;
+        return toReturn;
     }
 
     //TODO: Decide if all of these Getters/Setters are necessary
@@ -217,6 +299,46 @@ public class Character {
     public ArrayList<Equipment> getEquipment() { return equipment; }
     public void setEquipment(ArrayList<Equipment> equipment) { this.equipment = equipment; }
 
-    public ArrayList<Item> getItem() { return item; }
-    public void setItem(ArrayList<Item> item) { this.item = item; }
+    public ArrayList<Item> getItems() { return items; }
+    public void setItems(ArrayList<Item> items) { this.items = items; }
+
+    public boolean isNpc() {
+        return npc;
+    }
+
+    public void setNpc(boolean npc) {
+        this.npc = npc;
+    }
+
+    public Tile getTile() {
+        return tile;
+    }
+
+    public void setTile(Tile tile) {
+        this.tile = tile;
+    }
+
+    public int getMoveLeft() {
+        return moveLeft;
+    }
+
+    public void setMoveLeft(int moveLeft) {
+        this.moveLeft = moveLeft;
+    }
+
+    public int getRange() {
+        return range;
+    }
+
+    public void setRange(int range) {
+        this.range = range;
+    }
+
+    public int getTeam() {
+        return team;
+    }
+
+    public void setTeam(int team) {
+        this.team = team;
+    }
 }
